@@ -22,10 +22,7 @@ const createBooking=async (req,res) => {
 const makePayment= async (req,res) => {
     try {
         const idempotencyKey=req.headers['x-idempotency-key']
-        console.log(idempotencyKey);
         if(!idempotencyKey || inMemDb[idempotencyKey]){
-            console.log(inMemDb);
-            console.log(inMemDb[idempotencyKey]);
              res.status(StatusCodes.BAD_REQUEST).json({message:`Can't retry on a successful payment.`})
         }
         const response=await BookingService.makePayment({
