@@ -1,6 +1,7 @@
 const express=require('express')
 
-const { ServerConfig}=require('./config')
+
+const { ServerConfig,Queue }=require('./config')
 const {CRONS}=require('./crons')
 
 const apiRoutes=require('./routes')
@@ -13,7 +14,8 @@ app.use(express.urlencoded({extended:true}))
 
 app.use('/api',apiRoutes)
 
-app.listen(ServerConfig.PORT,()=>{
+app.listen(ServerConfig.PORT,async()=>{
     console.log(`Server running on ${ServerConfig.PORT}`)
+    await Queue.connectQueue()
     CRONS()
 })

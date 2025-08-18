@@ -1,7 +1,7 @@
 const axios=require('axios')
 const {BookingRepositor}=require('../repositories')
 const db=require('../models')
-const { ServerConfig } = require('../config')
+const { ServerConfig,Queue } = require('../config')
 const { AppError } = require('../utils/errors/app-error')
 const { StatusCodes } = require('http-status-codes')
 const {BOOKING_STATUS}=require('../utils/common/enums')
@@ -55,6 +55,11 @@ const makePayment= async(data)=> {
             throw new AppError(`The user doesn't match.`,StatusCodes.BAD_REQUEST)
         }
         await bookingRepository.update(data.bookingId,{status:BOOKED},transaction)
+        Queue.sendData({
+            recepientEmail:'yashwingahlawat29@gmail.com',
+            subject:'Flight Booked',
+            text:`Booking successfully done for bookingId ${data.bookingId}`
+        })
         await transaction.commit()
     } catch (error) {
         await transaction.rollback()
@@ -77,6 +82,7 @@ const cancelBooking=async(bookingId)=>{
             seats:bookingDetails.noOfSeats,
             dec:false
         })
+        const userDetails=await axios.get(`${ServerConfig.API_GATEWAY}/api/v1/`)
         await bookingRepository.update(bookingId,{status:CANCELLED},transaction)
         console.log("ok1")
 
